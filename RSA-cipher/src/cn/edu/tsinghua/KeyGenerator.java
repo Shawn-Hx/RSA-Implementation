@@ -85,15 +85,6 @@ public class KeyGenerator {
         BigNumber prime = generatePrime(384, new Random());
         long end = System.currentTimeMillis();
         System.out.println("Time elapse: " + (end - start) + "ms");
-        System.out.println("" + BigNumber.countMulNum + " times mul, elapse " + BigNumber.countMulTime);
-        System.out.println("" + BigNumber.countModSmallNum + " times mod small, elapse " + BigNumber.countModSmallTime + " to mod small");
-        System.out.println("" + BigNumber.countModBigNum + " times mod, elapse " + BigNumber.countModBigTime + " to mod");
-        System.out.println("" + BigNumber.countDivideNum + " times divide, elapse " + BigNumber.countDivideTime);
-        System.out.println("" + BigNumber.countMinusNum + " times minus, elapse " + BigNumber.countMinusTime);
-        System.out.println("" + BigNumber.countAddNum + " times add, elapse " + BigNumber.countAddTime);
-        System.out.println("" + BigNumber.countShiftLeftNum + " times shift left, elapse " + BigNumber.countShiftLeftTime);
-        System.out.println("" + BigNumber.countShiftRightNum + " times shift right, elapse " + BigNumber.countShiftRightTime);
-        System.out.println("" + BigNumber.countInverseNum + " times inverse, elapse " + BigNumber.countInverseTime);
 
         System.out.println(prime.toString());
         BigInteger bigInt = new BigInteger(prime.toString(), 16);

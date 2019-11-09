@@ -1,20 +1,9 @@
 package cn.edu.tsinghua;
 
-
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Random;
 
 public class BigNumber implements Comparable<BigNumber> {
-    public static long countMulTime = 0, countMulNum = 0;
-    public static long countModBigNum = 0, countModBigTime = 0;
-    public static long countModSmallNum = 0, countModSmallTime = 0;
-    public static long countAddNum = 0, countAddTime = 0;
-    public static long countMinusNum = 0, countMinusTime = 0;
-    public static long countDivideNum= 0, countDivideTime = 0;
-    public static long countShiftRightNum = 0, countShiftRightTime = 0;
-    public static long countShiftLeftNum = 0, countShiftLeftTime = 0;
-    public static long countInverseNum = 0, countInverseTime = 0;
 
     private static final int DEFAULT_LENGTH = 64;
     private static final int DEFAULT_LOG_RADIX = 28;    // Must be 4n, 1 <= n <= 7
@@ -38,7 +27,6 @@ public class BigNumber implements Comparable<BigNumber> {
         this.length = length;
         this.number = new long[length];
     }
-
 
     public BigNumber(BigNumber other) {
         this.number = Arrays.copyOf(other.number, other.length);
@@ -70,9 +58,9 @@ public class BigNumber implements Comparable<BigNumber> {
         this.realLen = realLen;
     }
 
-    public BigNumber(BigInteger bigInt) {
-        this(bigInt.toString(16));
-    }
+//    public BigNumber(BigInteger bigInt) {
+//        this(bigInt.toString(16));
+//    }
 
     public static BigNumber random(int bitLen, Random random) {
         if (bitLen <= 0)
@@ -172,11 +160,6 @@ public class BigNumber implements Comparable<BigNumber> {
     }
 
     public BigNumber montExp(BigNumber b, BigNumber n) {
-//        BigNumber rho = new BigNumber();
-//        rho.realLen = n.realLen + 1;
-//        rho.number[n.realLen] = 1;
-//        BigNumber rhoSquare = rho.shiftLeftDigits(rho.realLen - 1);
-//        rhoSquare = rhoSquare.mod(n);
         BigNumber rhoSquare = new BigNumber((n.realLen << 1) + 1);
         rhoSquare.realLen = rhoSquare.length;
         rhoSquare.number[rhoSquare.realLen - 1] = 1;
@@ -228,7 +211,6 @@ public class BigNumber implements Comparable<BigNumber> {
         if (carry != 0) {
             realLen += 1;
             if (realLen > length) {
-//                System.out.println("Shift left overflow!");
                 long[] numbers = new long[realLen + 1];
                 System.arraycopy(this.number, 0, numbers, 0, realLen - 1);
                 this.length = realLen + 1;
@@ -258,15 +240,12 @@ public class BigNumber implements Comparable<BigNumber> {
     }
 
     public BigNumber shiftLeft(int n) {
-        long start = System.nanoTime();
         if (n == 0)
             return this;
         int shiftDigit = n / DEFAULT_LOG_RADIX;
         shiftLeftDigits(shiftDigit);
         n %= DEFAULT_LOG_RADIX;
         shiftLeftWithinDigit(n);
-        countShiftLeftTime += System.nanoTime() - start;
-        countShiftLeftNum ++;
         return this;
     }
 
@@ -309,15 +288,12 @@ public class BigNumber implements Comparable<BigNumber> {
     }
 
     public BigNumber shiftRight(int n) {
-        long start = System.nanoTime();
         if (n == 0)
             return this;
         int shiftDigit = n / DEFAULT_LOG_RADIX;
         shiftRightDigits(shiftDigit);
         n %= DEFAULT_LOG_RADIX;
         shiftRightWithinDigit(n);
-        countShiftRightTime += System.nanoTime() - start;
-        countShiftRightNum++;
         return this;
     }
 
@@ -347,16 +323,6 @@ public class BigNumber implements Comparable<BigNumber> {
         return res;
     }
 
-    public int mod(int n) {
-        long start = System.nanoTime();
-        BigInteger num = BigInteger.valueOf(n);
-        BigInteger cur = toBigInteger();
-        int res = cur.mod(num).intValue();
-        countModSmallTime += System.nanoTime() - start;
-        countModSmallNum++;
-        return res;
-    }
-
     private void setBit(int n) {
         int digit = n / DEFAULT_LOG_RADIX;
         n %= DEFAULT_LOG_RADIX;
@@ -375,7 +341,6 @@ public class BigNumber implements Comparable<BigNumber> {
         // dividend == divisor
         if (compareRes == 0)
             return new BigNumber[]{new BigNumber(ONE), new BigNumber(n.length)};
-        long start = System.nanoTime();
         BigNumber remainder = new BigNumber(this);
         BigNumber quotient = new BigNumber(this.length);
         BigNumber divisor = new BigNumber(n.length);
@@ -395,8 +360,6 @@ public class BigNumber implements Comparable<BigNumber> {
             remainder = remainder.minus(divisor);
         }
         remainder.isPositive = this.isPositive == n.isPositive;
-        countDivideTime += System.nanoTime() - start;
-        countDivideNum ++;
         return new BigNumber[]{quotient, remainder};
     }
 
@@ -408,6 +371,10 @@ public class BigNumber implements Comparable<BigNumber> {
         }
     }
 
+    public long mod(long n) {
+        return this.mod(BigNumber.valueOf(n)).longValue();
+    }
+
     public BigNumber mod(final BigNumber n) {
         if (!this.isPositive || !n.isPositive)
             System.out.println("Mod warning, needs two positive numbers");
@@ -416,11 +383,10 @@ public class BigNumber implements Comparable<BigNumber> {
             return new BigNumber(this);
         if (compareRes == 0)
             return new BigNumber(ZERO);
-        long start = System.nanoTime();
         int nBinaryBits = n.getTotalBinaryDigits();
         BigNumber remainder = new BigNumber(this);
         BigNumber divisor = new BigNumber(this.length);
-        while (remainder.compareTo(n) > 0) {
+        while (remainder.compareTo(n) >= 0) {
             copy(divisor, n);
             int shiftBits = remainder.getTotalBinaryDigits() - nBinaryBits;
             divisor.shiftLeft(shiftBits);
@@ -429,8 +395,6 @@ public class BigNumber implements Comparable<BigNumber> {
             }
             remainder = remainder.minus(divisor);
         }
-        countModBigTime += System.nanoTime() - start;
-        countModBigNum ++;
         return remainder;
     }
 
@@ -460,30 +424,7 @@ public class BigNumber implements Comparable<BigNumber> {
         return res;
     }
 
-//    public static BigInteger[] extendEuclideanByAPI(BigInteger a, BigInteger b) {
-//        if (b.equals(BigInteger.ZERO)) {
-//            return new BigInteger[]{BigInteger.ONE, BigInteger.ZERO, a};
-//        }
-//        BigInteger[] res = extendEuclideanByAPI(b, a.mod(b));
-//        BigInteger oldX = res[0], oldY = res[1];
-//        res[0] = oldY;
-//        res[1] = oldX.subtract(a.divide(b).multiply(oldY));
-//        return res;
-//    }
-
-//    public BigNumber modInverseByAPI(BigNumber n) {
-//        BigInteger e = this.toBigInteger();
-//        BigInteger nn = n.toBigInteger();
-//        BigInteger[] res = extendEuclideanByAPI(this.toBigInteger(), n.toBigInteger());
-//        if (!res[2].equals(BigInteger.ONE)) {
-//            System.out.println("Inverse doesn't exists");
-//            return null;
-//        }
-//        return new BigNumber(res[0].mod(nn));
-//    }
-
     public BigNumber modInverse(final BigNumber n) {
-        long start = System.nanoTime();
         BigNumber[] results = extendEuclidean(new BigNumber(this), new BigNumber(n));
         if (!results[2].equalsTo(ONE)) {
             System.out.println("Mod inverse doesn't exists");
@@ -497,10 +438,7 @@ public class BigNumber implements Comparable<BigNumber> {
             }
             return n.minus(res);
         }
-        BigNumber result = res.mod(n);
-        countInverseTime += System.nanoTime() - start;
-        countInverseNum ++;
-        return result;
+        return res.mod(n);
     }
 
     public BigNumber minusOne() {
@@ -529,7 +467,6 @@ public class BigNumber implements Comparable<BigNumber> {
         }
         if (isPositive != n.isPositive)
             System.out.println("Minus warning!");
-        long start = System.nanoTime();
         BigNumber res = new BigNumber(this);
         res.realLen = realLen;
         res.isPositive = isPositive;
@@ -549,13 +486,10 @@ public class BigNumber implements Comparable<BigNumber> {
                 break;
             }
         }
-        countMinusTime += System.nanoTime() - start;
-        countMinusNum++;
         return res;
     }
 
     public BigNumber add(final BigNumber addend) {
-        long start = System.nanoTime();
         if (this.isPositive != addend.isPositive) {
             System.out.println("Add warning!");
         }
@@ -579,13 +513,10 @@ public class BigNumber implements Comparable<BigNumber> {
                 res.realLen++;
             }
         }
-        countAddTime += System.nanoTime() - start;
-        countAddNum++;
         return res;
     }
 
     public BigNumber multiply(final BigNumber multiplier) {
-        long start = System.nanoTime();
         BigNumber res;
         if (realLen + multiplier.realLen - 1 < length)
             res = new BigNumber();
@@ -607,14 +538,12 @@ public class BigNumber implements Comparable<BigNumber> {
         }
         res.realLen = Math.max(1, resRealLen);
         res.isPositive = this.isPositive == multiplier.isPositive;
-        countMulTime += System.nanoTime() - start; // count
-        countMulNum++;
         return res;
     }
 
-    private BigInteger toBigInteger() {
-        return new BigInteger(this.toString(), 16);
-    }
+//    private BigInteger toBigInteger() {
+//        return new BigInteger(this.toString(), 16);
+//    }
 
     private static final char[] ZEROS = new char[DEFAULT_LOG_RADIX];
     static {
