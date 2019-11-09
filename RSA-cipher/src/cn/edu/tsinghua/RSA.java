@@ -79,21 +79,4 @@ public class RSA {
         return RSA_KEYS.getD().toString();
     }
 
-    public static void main(String[] args) {
-        RSA rsa = new RSA(512, 10001);
-
-//        System.out.println("" + BigNumber.countMulNum + " times mul, elapse " + BigNumber.countMulTime);
-//        System.out.println("" + BigNumber.countModBigNum + " times mod, elapse " + BigNumber.countModBigTime);
-//        System.out.println("" + BigNumber.countDivideNum + " times divide, elapse " + BigNumber.countDivideTime);
-//        System.out.println("" + BigNumber.countMinusNum + " times minus, elapse " + BigNumber.countMinusTime);
-//        System.out.println("" + BigNumber.countAddNum + " times add, elapse " + BigNumber.countAddTime);
-//        System.out.println("" + BigNumber.countShiftLeftNum + " times shift left, elapse " + BigNumber.countShiftLeftTime);
-//        System.out.println("" + BigNumber.countShiftRightNum + " times shift right, elapse " + BigNumber.countShiftRightTime);
-//        System.out.println("" + BigNumber.countInverseNum + " times inverse, elapse " + BigNumber.countInverseTime);
-
-        String encrypt = rsa.encrypt("身边的那片田野啊，手边的稻花香，高粱熟了红满天，九儿我送你去远方~");
-        System.out.println(encrypt);
-        System.out.println(rsa.decrypt(encrypt));
-    }
-
 }

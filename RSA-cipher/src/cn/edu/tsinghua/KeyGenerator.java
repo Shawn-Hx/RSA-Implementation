@@ -1,6 +1,5 @@
 package cn.edu.tsinghua;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -78,16 +77,5 @@ public class KeyGenerator {
             d = e.modInverse(p.minusOne().multiply(q.minusOne()));
         } while (d == null);
         return new Keys(p, q, n, e, d);
-    }
-
-    public static void main(String[] args) {
-        long start = System.currentTimeMillis();
-        BigNumber prime = generatePrime(384, new Random());
-        long end = System.currentTimeMillis();
-        System.out.println("Time elapse: " + (end - start) + "ms");
-
-        System.out.println(prime.toString());
-        BigInteger bigInt = new BigInteger(prime.toString(), 16);
-        System.out.println(bigInt.isProbablePrime(100));
     }
 }
